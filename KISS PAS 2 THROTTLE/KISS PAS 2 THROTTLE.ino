@@ -34,12 +34,12 @@ void loop() {
     
     unsigned int sample = duration / 1000;  // convert to (ms)
 
-    //increase pulse counter if valid pulse detected
+    //if valid pulse detected map to PWM and write to output
     if (sample < 501 && sample != 0) {
         //map sample value to high and low PWM range
         int mappedValue = map(sample, 250, 500, highPWMValue, lowPWMValue);
         
-        //safeguard throttle control from out of range anomalies.
+        //safeguard throttle control from out of range anomalies
         if (mappedValue <= highPWMValue && mappedValue >= lowPWMValue) {
             analogWrite(PWMOut, mappedValue);
             currentPWMValue = mappedValue;
