@@ -23,19 +23,18 @@ void setup() {
     Serial.begin(9600);         // Initialize Serial Port
     pinMode(PASPin, INPUT);     // Initialize PAS pin as input
     pinMode(PWMOut, OUTPUT);    // Initialize PWM pin as output
+    idleThrottle();             // Generate Idle throttle voltage
 }
 
 
 void loop() {
-    //generate Idle Throttle Voltage.
-    idleThrottle();
 
-    //take a sample from the the Pedal Assist Sensor
+    //get the time between pulses from the the PAS (Pedal Assist Sensor)
     duration = pulseInLong(PASPin, HIGH);
-    unsigned int sample = duration / 1000;
+    
+    unsigned int sample = duration / 1000;  // convert to (ms)
 
     //increase pulse counter if valid pulse detected
-    // convert to (ms), anything over 500ms is unrelible [~1 Hz lowest pulse detect]
     if (sample < 501 && sample != 0) {
         //map sample value to high and low PWM range
         int mappedValue = map(sample, 250, 500, highPWMValue, lowPWMValue);
@@ -49,6 +48,11 @@ void loop() {
         pulses++;
     }
 
+    //generate idle throttle voltage if no pulses
+    if (!sample) {
+        idleThrottle();
+    }
+
 
     printDebug();
 }
@@ -56,8 +60,8 @@ void loop() {
 
 void idleThrottle() {
     //set throttle to idle
-    currentPWMValue = lowPWMValue;
     analogWrite(PWMOut, lowPWMValue);
+    currentPWMValue = lowPWMValue;
 }
 
 
